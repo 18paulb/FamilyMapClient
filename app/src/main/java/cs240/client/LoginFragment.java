@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Handler;
 import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +27,7 @@ import Tasks.RegisterTask;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link LoginFragment#newInstance} factory method to
+ * Use the {@link LoginFragment} factory method to
  * create an instance of this fragment.
  */
 public class LoginFragment extends Fragment {
@@ -55,29 +57,8 @@ public class LoginFragment extends Fragment {
     public Button registerButton;
     public Button loginButton;
 
-    boolean maleChecked;
-    boolean femaleChecked;
-
     public LoginFragment() {
         // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment LoginFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static LoginFragment newInstance(String param1, String param2) {
-        LoginFragment fragment = new LoginFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -95,10 +76,10 @@ public class LoginFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        username = view.findViewById(R.id.usernameField);
         serverHost = view.findViewById(R.id.serverHostField);
         serverPort = view.findViewById(R.id.serverPortField);
 
+        username = view.findViewById(R.id.usernameField);
         password = view.findViewById(R.id.passwordField);
         firstName = view.findViewById(R.id.firstNameField);
         lastName = view.findViewById(R.id.lastNameField);
@@ -107,16 +88,147 @@ public class LoginFragment extends Fragment {
         registerButton = view.findViewById(R.id.registerButton);
         loginButton = view.findViewById(R.id.loginButton);
 
+        registerButton.setEnabled(false);
+        loginButton.setEnabled(false);
+
         serverHost.setText("10.0.2.2");
         serverPort.setText("8080");
-
 
         male = view.findViewById(R.id.maleOption);
         female = view.findViewById(R.id.femaleOption);
 
         Button registerButton = view.findViewById(R.id.registerButton);
-        registerButton.setOnClickListener(new View.OnClickListener() {
 
+
+        //Text Watchers
+        username.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String inputUsername = username.getText().toString();
+                String inputPassword = password.getText().toString();
+                String inputFirst = firstName.getText().toString();
+                String inputLast = lastName.getText().toString();
+                String inputEmail = email.getText().toString();
+
+                loginButton.setEnabled(!inputUsername.equals("") && !inputPassword.equals(""));
+                registerButton.setEnabled(!inputUsername.equals("") && !inputPassword.equals("") && !inputFirst.equals("")
+                        && !inputLast.equals("") && !inputEmail.equals(""));
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        password.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String inputUsername = username.getText().toString();
+                String inputPassword = password.getText().toString();
+                String inputFirst = firstName.getText().toString();
+                String inputLast = lastName.getText().toString();
+                String inputEmail = email.getText().toString();
+
+                loginButton.setEnabled(!inputUsername.equals("") && !inputPassword.equals(""));
+                registerButton.setEnabled(!inputUsername.equals("") && !inputPassword.equals("") && !inputFirst.equals("")
+                        && !inputLast.equals("") && !inputEmail.equals(""));
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        firstName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String inputUsername = username.getText().toString();
+                String inputPassword = password.getText().toString();
+                String inputFirst = firstName.getText().toString();
+                String inputLast = lastName.getText().toString();
+                String inputEmail = email.getText().toString();
+
+                registerButton.setEnabled(!inputUsername.equals("") && !inputPassword.equals("") && !inputFirst.equals("")
+                && !inputLast.equals("") && !inputEmail.equals(""));
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        lastName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String inputUsername = username.getText().toString();
+                String inputPassword = password.getText().toString();
+                String inputFirst = firstName.getText().toString();
+                String inputLast = lastName.getText().toString();
+                String inputEmail = email.getText().toString();
+
+                registerButton.setEnabled(!inputUsername.equals("") && !inputPassword.equals("") && !inputFirst.equals("")
+                        && !inputLast.equals("") && !inputEmail.equals(""));
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        email.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String inputUsername = username.getText().toString();
+                String inputPassword = password.getText().toString();
+                String inputFirst = firstName.getText().toString();
+                String inputLast = lastName.getText().toString();
+                String inputEmail = email.getText().toString();
+
+                registerButton.setEnabled(!inputUsername.equals("") && !inputPassword.equals("") && !inputFirst.equals("")
+                        && !inputLast.equals("") && !inputEmail.equals(""));
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+
+
+        //Register Button Listener
+        registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
                 try {
@@ -182,6 +294,8 @@ public class LoginFragment extends Fragment {
             }
         });
 
+
+        //Login Button Listener
         Button loginButton = view.findViewById(R.id.loginButton);
         loginButton.setOnClickListener(new View.OnClickListener() {
 

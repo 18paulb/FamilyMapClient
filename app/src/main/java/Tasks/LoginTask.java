@@ -52,8 +52,6 @@ public class LoginTask implements Runnable{
 
                     GetAllEventResult events = ServerProxy.getEvents(serverHost, serverPort, result.getAuthtoken());
                     cache.setEvents(events.getData());
-
-
                     String fname = "";
                     String lname = "";
                     for (Person person : persons.getData()) {

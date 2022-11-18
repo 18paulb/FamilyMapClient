@@ -142,6 +142,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="end"
                     android:text="@string/male"
+                    android:checked="true"
                     />
                 <RadioButton
                     android:id="@+id/femaleOption"
