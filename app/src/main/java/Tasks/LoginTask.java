@@ -34,10 +34,10 @@ public class LoginTask implements Runnable{
         LoginResult result = new LoginResult();
 
 
-        if (request.getUsername().equals("") || request.getPassword().equals("")) {
-            sendMessage("","",false);
-        }
-        else {
+        //if (request.getUsername().equals("") || request.getPassword().equals("")) {
+        //    sendMessage("","",false);
+        //}
+        //else {
             try {
                 result = ServerProxy.login(serverHost, serverPort, this.request);
 
@@ -48,10 +48,11 @@ public class LoginTask implements Runnable{
                 else {
                     //Get Persons and find the User and assign info
                     GetAllPersonResult persons = ServerProxy.getPersons(serverHost, serverPort, result.getAuthtoken());
-                    cache.setPeople(persons.getData());
-
                     GetAllEventResult events = ServerProxy.getEvents(serverHost, serverPort, result.getAuthtoken());
+                    cache.setPeople(persons.getData());
+                    cache.addToken(result.getAuthtoken());
                     cache.setEvents(events.getData());
+
                     String fname = "";
                     String lname = "";
                     for (Person person : persons.getData()) {
@@ -67,7 +68,7 @@ public class LoginTask implements Runnable{
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
+        //}
     }
 
     private void sendMessage(String firstName, String lastName, boolean success) {

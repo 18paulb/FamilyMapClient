@@ -30,18 +30,19 @@ import Tasks.RegisterTask;
  * Use the {@link LoginFragment} factory method to
  * create an instance of this fragment.
  */
-public class LoginFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class LoginFragment extends Fragment  {
 
     private Toast toast;
+
+    private Listener listener;
+
+    public interface Listener {
+        void notifyLogin();
+    }
+
+    public void registerListener(Listener listener) {
+        this.listener = listener;
+    }
 
     public EditText serverHost;
     public EditText serverPort;
@@ -64,10 +65,6 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -314,6 +311,7 @@ public class LoginFragment extends Fragment {
 
                             if (success) {
                                 Toast.makeText(getContext(), "Logging In: " + fname + " " + lname, Toast.LENGTH_LONG).show();
+                                listener.notifyLogin();
                             } else {
                                 Toast.makeText(getContext(), "Failed to Login", Toast.LENGTH_LONG).show();
                             }

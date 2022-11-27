@@ -17,12 +17,9 @@ public class DataCache {
 
     private DataCache() {}
 
-    private String userFirstName;
-    private String userLastName;
-
     private ArrayList<Person> people;
     private ArrayList<Event> events;
-    private ArrayList<String> authTokens;
+    private ArrayList<String> authTokens = new ArrayList<>();
 
     public void addToken(String authToken) {
         authTokens.add(authToken);
@@ -45,14 +42,6 @@ public class DataCache {
 
     public void setEvents(ArrayList<Event> events) {
         this.events = events;
-    }
-
-    public String getUserFirstName() {
-        return userFirstName;
-    }
-
-    public void setUserFirstName(String userFirstName) {
-        this.userFirstName = userFirstName;
     }
 
     //Map<EventID, Event> events;
