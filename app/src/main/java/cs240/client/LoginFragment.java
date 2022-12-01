@@ -242,7 +242,7 @@ public class LoginFragment extends Fragment  {
                             boolean success = bundle.getBoolean("Success");
 
                             if (success) {
-                                Toast.makeText(getContext(), "Registering: " + fname + " " + lname, Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), "Registering: " + fname + " " + lname, Toast.LENGTH_SHORT).show();
                             }
                             else {
                                 Toast.makeText(getContext(), "Failed to Register", Toast.LENGTH_LONG).show();
@@ -310,7 +310,7 @@ public class LoginFragment extends Fragment  {
                             boolean success = bundle.getBoolean("Success");
 
                             if (success) {
-                                Toast.makeText(getContext(), "Logging In: " + fname + " " + lname, Toast.LENGTH_LONG).show();
+                                Toast.makeText(getContext(), "Logging In: " + fname + " " + lname, Toast.LENGTH_SHORT).show();
                                 listener.notifyLogin();
                             } else {
                                 Toast.makeText(getContext(), "Failed to Login", Toast.LENGTH_LONG).show();

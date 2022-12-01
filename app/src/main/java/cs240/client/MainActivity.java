@@ -1,18 +1,31 @@
 package cs240.client;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import Request.LoginRequest;
+import ViewModels.MainActivityViewModel;
 
 public class MainActivity extends AppCompatActivity implements LoginFragment.Listener {
 
-    private Fragment loginFragment;
-    private Fragment mapFragment;
+
+    private MainActivityViewModel getViewModel() {
+        return new ViewModelProvider(this).get(MainActivityViewModel.class);
+    }
+
+
+    /*
+     Intent intent = new Intent(currAcitivty.this, newActivity.class);
+     startActivity(intent)
+     */
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,10 +33,12 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Lis
         setContentView(R.layout.activity_main);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-        //loginFragment = fragmentManager.findFragmentById(R.id.loginFragment);
-        //mapFragment = fragmentManager.findFragmentById(R.id.mapFragment);
-        //Going to return null
         Fragment fragment = fragmentManager.findFragmentById(R.id.fragmentFrameLayout);
+
+        //If there is a previous activity state
+        if (savedInstanceState != null) {
+
+        }
 
         if (fragment == null) {
             fragment = createLoginFragment();
@@ -33,7 +48,6 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Lis
                 transaction.add(R.id.fragmentFrameLayout, fragment);
                 transaction.commit();
         }
-
     }
 
     private Fragment createLoginFragment() {
@@ -52,5 +66,11 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Lis
 
         fragmentTransaction.replace(R.id.fragmentFrameLayout, fragment);
         fragmentTransaction.commit();
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outstate) {
+        super.onSaveInstanceState(outstate);
+        //outstate.putInt("Test", 1);
     }
 }

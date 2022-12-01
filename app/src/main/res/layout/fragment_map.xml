@@ -2,8 +2,8 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     >
 
     <fragment
@@ -13,15 +13,54 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MapFragment" />
-
-    <TextView
-        android:layout_width="wrap_content"
+<!--
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/mapInfo"
-        android:text="This is the map fragment"
-        android:textAlignment="center"
         android:layout_alignParentBottom="true"
-        android:layout_margin="8dp"
-        />
+        android:background="#fff"
+        android:gravity="center"
+        >
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/personName"
+                android:text="All the info goes here"
+                android:textAlignment="center"
+                android:layout_margin="5dp"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/eventType"
+                android:text="Event Type"
+                android:textAlignment="center"
+                android:layout_margin="5dp"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/eventLocation"
+                android:text="Event Location"
+                android:textAlignment="center"
+                android:layout_margin="5dp"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/eventYear"
+                android:text="Event Year"
+                android:textAlignment="center"
+                android:layout_margin="5dp"
+                />
+        </LinearLayout>
+    </RelativeLayout>
 
+-->
 </RelativeLayout>
