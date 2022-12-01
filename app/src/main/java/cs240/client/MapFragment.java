@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -28,10 +29,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     private GoogleMap map;
 
-    private TextView personName;
+    private TextView firstName;
+    private TextView lastName;
     private TextView eventType;
     private TextView eventLoc;
     private TextView eventYear;
+    private RelativeLayout info;
 
 /*
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
@@ -72,10 +75,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //personName = view.findViewById(R.id.personName);
-        //eventType = view.findViewById(R.id.eventType);
-        //eventLoc = view.findViewById(R.id.eventLocation);
-        //eventYear = view.findViewById(R.id.eventYear);
+        firstName = view.findViewById(R.id.firstName);
+        lastName = view.findViewById(R.id.lastName);
+        eventType = view.findViewById(R.id.eventType);
+        eventLoc = view.findViewById(R.id.eventLocation);
+        eventYear = view.findViewById(R.id.eventYear);
+        info = view.findViewById(R.id.info);
+
+
+
+        info.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), PersonActivity.class);
+                intent.putExtra("firstName", firstName.getText());
+                intent.putExtra("lastName", lastName.getText());
+                intent.putExtra("gender", "f");
+                startActivity(intent);
+            }
+        });
+
 
 
         return view;
@@ -135,16 +154,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     @Override
     public boolean onMarkerClick(Marker marker) {
 
-        //Intent intent = new Intent(MainActivity.class, PersonActivity.class);
-
-        return false;
-    }
-
-    //FIXME: ALL this will be put into the Event Activity
-    /*
-    @Override
-    public boolean onMarkerClick(Marker marker) {
-
         Event event = (Event) marker.getTag();
 
         String id = event.getPersonID();
@@ -158,15 +167,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                 person = tmp;
             }
         }
-        //personName.setText(String.format("%s %s", person.getFirstName(), person.getLastName()));
-        //eventType.setText(event.getEventType());;
-        //eventLoc.setText(String.format("%s %s", event.getCity(), event.getCountry()));
-        //eventYear.setText(String.valueOf(event.getYear()));
+
+        //info.setVisibility(View.VISIBLE);
+
+        firstName.setText(String.format("%s", person.getFirstName()));
+        lastName.setText(String.format("%s",  person.getLastName()));
+        eventType.setText(String.format("%s: ", event.getEventType().toUpperCase()));;
+        eventLoc.setText(String.format("%s %s", event.getCity(), event.getCountry()));
+        eventYear.setText(String.valueOf(event.getYear()));
 
         return false;
     }
-
-     */
 
 
     //Later for line drawing
