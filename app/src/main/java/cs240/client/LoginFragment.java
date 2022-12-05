@@ -9,6 +9,8 @@ import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -31,8 +33,6 @@ import Tasks.RegisterTask;
  * create an instance of this fragment.
  */
 public class LoginFragment extends Fragment  {
-
-    private Toast toast;
 
     private Listener listener;
 
@@ -65,7 +65,16 @@ public class LoginFragment extends Fragment  {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(false);
     }
+
+    /*
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater infaler) {
+
+    }
+
+     */
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -284,7 +293,6 @@ public class LoginFragment extends Fragment  {
                         executor.submit(registerTask);
                     }
 
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -299,7 +307,6 @@ public class LoginFragment extends Fragment  {
             @Override
             public void onClick(View v){
                 try {
-
                     Handler uiThreadLogin = new Handler() {
                         @Override
                         public void handleMessage(Message message) {
@@ -343,9 +350,6 @@ public class LoginFragment extends Fragment  {
             }
         });
 
-
-        // Inflate the layout for this fragment
-        //return inflater.inflate(R.layout.fragment_login, container, false);
         return view;
     }
 

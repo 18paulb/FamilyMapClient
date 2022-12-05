@@ -9,21 +9,79 @@
     >
 
     <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/firstName"
+        android:textStyle="bold"
+        />
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/firstName"
-        android:text="Empty Name"
+        />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/black" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/lastName"
+        android:textStyle="bold"
         />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/lastName"
-        android:text="Empty Name"
+        />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/black" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/gender"
+        android:textStyle="bold"
         />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/personGender"
-        android:text="Empty Gender"
         />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/black" />
+
+
+    <ExpandableListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/expandableList"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="0.5dp"
+        android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        tools:context=".view.PersonActivity"
+        >
+
+        <!--Layout for group headings-->
+        <!--
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/title"
+            />
+           -->
+
+        <!--Layout for headings to be displayed-->
+
+
+    </ExpandableListView>
 </LinearLayout>

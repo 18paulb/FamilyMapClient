@@ -42,6 +42,12 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.5.3'
     implementation files('libs/server-client.jar')
     implementation files('libs/gson-2.3.1.jar')
+
+    implementation ('com.joanzapata.iconify:android-iconify:2.2.2',
+            { exclude group: 'com.android.support' })
+    implementation ('com.joanzapata.iconify:android-iconify-fontawesome:2.2.2',
+            { exclude group: 'com.android.support' })
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'

@@ -10,6 +10,14 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+
+import com.joanzapata.iconify.IconDrawable;
+import com.joanzapata.iconify.Iconify;
+import com.joanzapata.iconify.fonts.FontAwesomeIcons;
+import com.joanzapata.iconify.fonts.FontAwesomeModule;
 
 import Request.LoginRequest;
 import ViewModels.MainActivityViewModel;
@@ -21,28 +29,16 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Lis
         return new ViewModelProvider(this).get(MainActivityViewModel.class);
     }
 
-
-    /*
-     Intent intent = new Intent(currAcitivty.this, newActivity.class);
-     startActivity(intent)
-     */
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        getSupportActionBar().setCustomView(R.layout.main_activity_toolbar);
-
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment = fragmentManager.findFragmentById(R.id.fragmentFrameLayout);
 
         //If there is a previous activity state
-        if (savedInstanceState != null) {
-
-        }
+        Iconify.with(new FontAwesomeModule());
 
         if (fragment == null) {
             fragment = createLoginFragment();
@@ -53,6 +49,46 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Lis
                 transaction.commit();
         }
     }
+
+    /*
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+
+        MenuItem settingsItem = menu.findItem(R.id.settings);
+
+        settingsItem.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_cog)
+                .colorRes(R.color.white)
+                .actionBarSize()
+        );
+
+        MenuItem searchItem = menu.findItem(R.id.search);
+
+        searchItem.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_search)
+                .colorRes(R.color.white)
+                .actionBarSize()
+        );
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menu) {
+        switch(menu.getItemId()) {
+            case R.id.settings:
+                System.out.println("Settings Clicked");
+                return true;
+            case R.id.search:
+                System.out.println("Search Clicked");
+                return true;
+            default: return super.onOptionsItemSelected(menu);
+        }
+    }
+
+     */
+
+
+
 
     private Fragment createLoginFragment() {
         LoginFragment fragment = new LoginFragment();
@@ -75,6 +111,5 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Lis
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outstate) {
         super.onSaveInstanceState(outstate);
-        //outstate.putInt("Test", 1);
     }
 }

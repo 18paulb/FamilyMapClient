@@ -3,6 +3,9 @@ package cs240.client;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -13,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -20,6 +24,12 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.joanzapata.iconify.IconDrawable;
+import com.joanzapata.iconify.Iconify;
+import com.joanzapata.iconify.fonts.FontAwesomeIcons;
+import com.joanzapata.iconify.fonts.FontAwesomeModule;
+
+import java.io.Serializable;
 
 import Model.Event;
 import Model.Person;
@@ -36,38 +46,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private TextView eventYear;
     private RelativeLayout info;
 
-/*
-    private OnMapReadyCallback callback = new OnMapReadyCallback() {
+    private Intent intent = null;
 
-        /**
-         * Manipulates the map once available.
-         * This callback is triggered when the map is ready to be used.
-         * This is where we can add markers or lines, add listeners or move the camera.
-         * In this case, we just add a marker near Sydney, Australia.
-         * If Google Play services is not installed on the device, the user will be prompted to
-         * install it inside the SupportMapFragment. This method will only be triggered once the
-         * user has installed Google Play services and returned to the app.
+    private Bundle data = new Bundle();
 
-        @Override
-        public void onMapReady(GoogleMap googleMap) {
-
-            DataCache cache = DataCache.getInstance();
-
-            for (Event event : cache.getEvents()) {
-                LatLng tmp = new LatLng(event.getLatitude(), event.getLongitude());
-                googleMap.addMarker(new MarkerOptions().position(tmp).title("Marker in " + event.getCity()));
-            }
-
-            //googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-        }
-    };
-*/
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        //return inflater.inflate(R.layout.fragment_map, container, false);
         super.onCreateView(inflater, container, savedInstanceState);
 
         View view = inflater.inflate(R.layout.fragment_map, container, false);
@@ -83,22 +70,71 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         info = view.findViewById(R.id.info);
 
 
-
         info.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), PersonActivity.class);
-                intent.putExtra("firstName", firstName.getText());
-                intent.putExtra("lastName", lastName.getText());
-                intent.putExtra("gender", "f");
-                startActivity(intent);
+                if (firstName.getText().length() != 0 && lastName.getText().length() != 0 && eventType.getText().length() != 0) {
+                    intent = new Intent(getActivity(), PersonActivity.class);
+
+                    String personID = getData().getString("personID");
+                    intent.putExtra("personID", personID);
+
+                    intent.putExtra("firstName", firstName.getText());
+                    intent.putExtra("lastName", lastName.getText());
+                    intent.putExtra("gender", getData().getString("gender"));
+                    startActivity(intent);
+                }
             }
         });
 
+        Iconify.with(new FontAwesomeModule());
 
+        setHasOptionsMenu(true);
 
         return view;
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        if (requireActivity().getClass().equals(EventActivity.class)) {
+            return;
+        }
+
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.main_menu, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.search);
+
+        searchItem.setIcon(new IconDrawable(getActivity(), FontAwesomeIcons.fa_search)
+                .colorRes(R.color.white)
+                .actionBarSize()
+        );
+
+        MenuItem settingsItem = menu.findItem(R.id.settings);
+
+        settingsItem.setIcon(new IconDrawable(getActivity(), FontAwesomeIcons.fa_cog)
+                .colorRes(R.color.white)
+                .actionBarSize()
+        );
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menu) {
+        switch(menu.getItemId()) {
+            case R.id.settings:
+                System.out.println("Settings Clicked");
+                return true;
+            case R.id.search:
+                System.out.println("Search Clicked");
+                return true;
+            default: return super.onOptionsItemSelected(menu);
+        }
+    }
+
+
+
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -140,6 +176,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             }
         }
 
+        if (requireActivity().getClass().equals(EventActivity.class)) {
+            Intent intent = getActivity().getIntent();
+
+            Event event = cache.getEvent(intent.getStringExtra("eventID"));
+            Person person = cache.getPerson(intent.getStringExtra("associatedPersonID"));
+
+            LatLng tmp = new LatLng(event.getLatitude(), event.getLongitude());
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(tmp));
+
+            firstName.setText(String.format("%s", person.getFirstName()));
+            lastName.setText(String.format("%s",  person.getLastName()));
+            eventType.setText(String.format("%s: ", event.getEventType().toUpperCase()));;
+            eventLoc.setText(String.format("%s %s", event.getCity(), event.getCountry()));
+            eventYear.setText(String.valueOf(event.getYear()));
+        }
+
 
         //map.addPolyline()
 
@@ -168,7 +220,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             }
         }
 
-        //info.setVisibility(View.VISIBLE);
+        getData().putString("personID", event.getPersonID());
+
+        if (person.getGender().equals("f")) {
+            getData().putString("gender", "Female");
+        }
+        if (person.getGender().equals("m")) {
+            getData().putString("gender", "Male");
+        }
 
         firstName.setText(String.format("%s", person.getFirstName()));
         lastName.setText(String.format("%s",  person.getLastName()));
@@ -177,6 +236,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         eventYear.setText(String.valueOf(event.getYear()));
 
         return false;
+    }
+
+    private Bundle getData() {
+        return data;
     }
 
 
