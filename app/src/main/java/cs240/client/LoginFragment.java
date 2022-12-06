@@ -255,6 +255,7 @@ public class LoginFragment extends Fragment  {
                             String fname = bundle.getString("firstName");
                             String lname = bundle.getString("lastName");
                             boolean success = bundle.getBoolean("Success");
+                            listener.notifyLogin();
 
                             if (success) {
                                 Toast.makeText(getContext(), "Registering: " + fname + " " + lname, Toast.LENGTH_SHORT).show();
@@ -270,7 +271,6 @@ public class LoginFragment extends Fragment  {
                                 cache.setSettings("FemaleEvents", true);
 
                                 cache.setUserID(bundle.getString("personID"));
-
                             }
                             else {
                                 Toast.makeText(getContext(), "Failed to Register", Toast.LENGTH_LONG).show();

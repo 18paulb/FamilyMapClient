@@ -53,11 +53,23 @@ public class PersonActivity extends AppCompatActivity {
 
         //Sets Adaptor
         DataCache cache = DataCache.getInstance();
-        ArrayList events = cache.getEventsOfPerson(intent.getStringExtra("personID"));
+        //ArrayList events = cache.getEventsOfPerson(intent.getStringExtra("personID"));
         ArrayList people = cache.getFamilyOfPerson(intent.getStringExtra("personID"));
 
+        ArrayList events = cache.getFilteredEvents();
+        ArrayList finalEvents = new ArrayList();
 
-        list.setAdapter(new ExpandableListAdapter(events, people));
+        for (int i = 0; i < events.size(); ++i) {
+            Event event = (Event) events.get(i);
+            if (event.getPersonID().equals(intent.getStringExtra("personID"))) {
+                finalEvents.add(event);
+            }
+        }
+
+
+
+
+        list.setAdapter(new ExpandableListAdapter(finalEvents, people));
     }
 
 

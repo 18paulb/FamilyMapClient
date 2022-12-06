@@ -50,46 +50,6 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.Lis
         }
     }
 
-    /*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.main_menu, menu);
-
-        MenuItem settingsItem = menu.findItem(R.id.settings);
-
-        settingsItem.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_cog)
-                .colorRes(R.color.white)
-                .actionBarSize()
-        );
-
-        MenuItem searchItem = menu.findItem(R.id.search);
-
-        searchItem.setIcon(new IconDrawable(this, FontAwesomeIcons.fa_search)
-                .colorRes(R.color.white)
-                .actionBarSize()
-        );
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem menu) {
-        switch(menu.getItemId()) {
-            case R.id.settings:
-                System.out.println("Settings Clicked");
-                return true;
-            case R.id.search:
-                System.out.println("Search Clicked");
-                return true;
-            default: return super.onOptionsItemSelected(menu);
-        }
-    }
-
-     */
-
-
-
-
     private Fragment createLoginFragment() {
         LoginFragment fragment = new LoginFragment();
         fragment.registerListener(this);

@@ -56,7 +56,7 @@ public class SearchActivity extends AppCompatActivity {
                 DataCache cache = DataCache.getInstance();
 
                 ArrayList<Event> events = cache.searchFilterEvents(newText.toLowerCase(), cache.getFilteredEvents());
-                ArrayList<Person> people = cache.searchFilterPeople(newText.toLowerCase(), cache.getFilteredPeople());
+                ArrayList<Person> people = cache.searchFilterPeople(newText.toLowerCase(), cache.getPeople());
 
                 SearchAdaptor adaptor = new SearchAdaptor(events, people);
                 recyclerView.setAdapter(adaptor);
@@ -198,7 +198,6 @@ public class SearchActivity extends AppCompatActivity {
 
         }
 
-        //FIXME: NOT Working when clicking person activity
         @Override
         public void onClick(View v) {
 

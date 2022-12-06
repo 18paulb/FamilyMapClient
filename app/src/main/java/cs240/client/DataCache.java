@@ -275,6 +275,14 @@ public class DataCache {
                 events.remove(i);
                 i--;
             }
+            else if (!settings.get("MaleEvents") && person.getGender().equals("m")) {
+                events.remove(i);
+                i--;
+            }
+            else if (!settings.get("FemaleEvents") && person.getGender().equals("f")) {
+                events.remove(i);
+                i--;
+            }
         }
 
         return events;

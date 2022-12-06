@@ -55,7 +55,7 @@ public class RegisterTask implements Runnable {
                     GetAllEventResult events = ServerProxy.getEvents(serverHost, serverPort, result.getAuthtoken());
                     cache.setEvents(events.getData());
 
-                    sendMessage(request.getFirstName(), request.getLastName(), request.getPersonID(), result.isSuccess());
+                    sendMessage(request.getFirstName(), request.getLastName(), result.getPersonID(), result.isSuccess());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
