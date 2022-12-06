@@ -34,9 +34,7 @@ import com.joanzapata.iconify.fonts.FontAwesomeModule;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import Model.Event;
 import Model.Person;
@@ -159,14 +157,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         DataCache cache = DataCache.getInstance();
 
         for (Event event : cache.getFilteredEvents()) {
-            addMarker(map, event);
+            createMarker(map, event);
         }
 
+        //Populates the Person Info on Event Activity
         if (requireActivity().getClass().equals(EventActivity.class)) {
             Intent intent = getActivity().getIntent();
 
             Event event = cache.getEvent(intent.getStringExtra("eventID"));
             Person person = cache.getPerson(intent.getStringExtra("associatedPersonID"));
+
+            getData().putString("personID", person.getPersonID());
+            if (person.getGender().equals("f")) {
+                getData().putString("gender", "Female");
+            }
+            if (person.getGender().equals("m")) {
+                getData().putString("gender", "Male");
+            }
 
             LatLng tmp = new LatLng(event.getLatitude(), event.getLongitude());
             googleMap.moveCamera(CameraUpdateFactory.newLatLng(tmp));
@@ -189,6 +196,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                         .sizeDp(40)
                 );
             }
+
+            drawLinesOfPerson(person.getPersonID(), event);
         }
     }
 
@@ -201,35 +210,45 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         //Filters Gender
         DataCache cache = DataCache.getInstance();
 
-        //Removes all markers from map but not from markers array
+        //Sets all markers to invisible
         for (Marker marker : markers) {
-            marker.remove();
+            marker.setVisible(false);
         }
 
         if (map != null) {
 
             ArrayList<Event> events = new ArrayList<>();
 
-            //Add events of user and user's spouse
-            events.addAll(cache.getEventsOfPerson(cache.getUserID()));
-
-            Person user = cache.getPerson(cache.getUserID());
-
-            if (user.getSpouseID() != null) {
-                events.addAll(cache.getEventsOfPerson(user.getSpouseID()));
-            }
-
             events.addAll(cache.getFilteredEvents());
 
+            //Makes events that are filtered be shown on map
             for (Event event : events) {
-                addMarker(map, event);
+                for (Marker marker : markers) {
+                    Event tag = (Event) marker.getTag();
+                    if (tag.getEventID().equals(event.getEventID())) {
+                        marker.setVisible(true);
+                        break;
+                    }
+                    else {
+                        continue;
+                    }
+                }
             }
+
         }
 
         //Removes Polylines on load
         for (Polyline line : lines) {
             line.remove();
         }
+
+        //Removes Person/Event Info from Bottom
+        firstName.setText(String.format("%s", "Click on Marker to see event details"));
+        lastName.setText(String.format("%s",  ""));
+        eventType.setText(String.format("%s", ""));;
+        eventLoc.setText(String.format("%s", ""));
+        eventYear.setText("");
+        image.setImageDrawable(null);
     }
 
     @Override
@@ -242,7 +261,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     public boolean onMarkerClick(Marker marker) {
 
         //This populates the info section
-
         Event event = (Event) marker.getTag();
 
         String id = event.getPersonID();
@@ -290,31 +308,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         }
 
         //Draws Lines
-
-        //Draw Spouse Line - GOOD
-        if (person.getSpouseID() != null && cache.getSettings().get("SpouseLines")) {
-            ArrayList<Event> spouseEvents = cache.getEventsOfPerson(person.getSpouseID());
-            drawLine(event, spouseEvents.get(0), Color.RED, 16.0F);
-        }
-
-        //Draws lines between all life events
-        if (cache.getSettings().get("LifeStory")) {
-            ArrayList<Event> lifeEvents = cache.getEventsOfPerson(person.getPersonID());
-            Event currEvent = event;
-            for (Event tmp : lifeEvents) {
-                if (tmp.getEventID().equals(event.getEventID())) {
-                    currEvent = tmp;
-                    continue;
-                }
-                drawLine(currEvent, tmp, Color.BLUE, 16.0F);
-                currEvent = tmp;
-            }
-        }
-
-        //Draw Lines to All the Ancestors with lines getting progressively smaller after each generation
-        if (cache.getSettings().get("FamilyLines")) {
-            goThroughAncestors(event, 16.0F, cache);
-        }
+        drawLinesOfPerson(person.getPersonID(), event);
 
         return false;
     }
@@ -323,25 +317,37 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         return data;
     }
 
-    public void goThroughAncestors(Event startEvent, float width, DataCache cache) {
+    public void linesThroughAncestors(Event startEvent, float width, DataCache cache) {
         Person person = cache.getPerson(startEvent.getPersonID());
 
         if (person.getMotherID() != null) {
             Person mother = cache.getPerson(person.getMotherID());
 
             ArrayList<Event> motherEvents = cache.getEventsOfPerson(mother.getPersonID());
-            drawLine(startEvent, motherEvents.get(0), Color.GRAY, width);
 
-            goThroughAncestors(motherEvents.get(0), width-4, cache);
+            for (Marker marker : markers) {
+                Event tag = (Event) marker.getTag();
+                if (tag.getEventID().equals(motherEvents.get(0).getEventID()) && marker.isVisible()) {
+                    drawLine(startEvent, motherEvents.get(0), Color.GRAY, width);
+                }
+            }
+
+            linesThroughAncestors(motherEvents.get(0), width-4, cache);
 
         }
         if (person.getFatherID() != null) {
             Person father = cache.getPerson(person.getFatherID());
 
             ArrayList<Event> fatherEvents = cache.getEventsOfPerson(father.getPersonID());
-            drawLine(startEvent, fatherEvents.get(0), Color.GRAY, width);
 
-            goThroughAncestors(fatherEvents.get(0), width-4, cache);
+            for (Marker marker : markers) {
+                Event tag = (Event) marker.getTag();
+                if (tag.getEventID().equals(fatherEvents.get(0).getEventID()) && marker.isVisible()) {
+                    drawLine(startEvent, fatherEvents.get(0), Color.GRAY, width);
+                }
+            }
+
+            linesThroughAncestors(fatherEvents.get(0), width-4, cache);
         }
 
     }
@@ -361,7 +367,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         lines.add(line);
      }
 
-    public void addMarker(GoogleMap map, Event event) {
+    public void createMarker(GoogleMap map, Event event) {
         LatLng tmp = new LatLng(event.getLatitude(), event.getLongitude());
 
         String eventType = event.getEventType().toLowerCase();
@@ -387,4 +393,42 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             markers.add(marker);
         }
     }
+
+    public void drawLinesOfPerson(String personID, Event event) {
+        DataCache cache = DataCache.getInstance();
+        Person person = cache.getPerson(personID);
+
+        //Draw Spouse Line - GOOD
+        if (person.getSpouseID() != null && cache.getSettings().get("SpouseLines")) {
+            ArrayList<Event> spouseEvents = cache.getEventsOfPerson(person.getSpouseID());
+            Person spouse = cache.getPerson(person.getSpouseID());
+
+            if (spouse.getGender().equals("m") && cache.getSettings().get("MaleEvents")) {
+                drawLine(event, spouseEvents.get(0), Color.RED, 16.0F);
+            }
+            if (spouse.getGender().equals("f") && cache.getSettings().get("FemaleEvents")) {
+                drawLine(event, spouseEvents.get(0), Color.RED, 16.0F);
+            }
+        }
+
+        //Draws lines between all life events
+        if (cache.getSettings().get("LifeStory")) {
+            ArrayList<Event> lifeEvents = cache.getEventsOfPerson(person.getPersonID());
+            Event currEvent = event;
+            for (Event tmp : lifeEvents) {
+                if (tmp.getEventID().equals(event.getEventID())) {
+                    currEvent = tmp;
+                    continue;
+                }
+                drawLine(currEvent, tmp, Color.BLUE, 16.0F);
+                currEvent = tmp;
+            }
+        }
+
+        //Draw Lines to All the Ancestors with lines getting progressively smaller after each generation
+        if (cache.getSettings().get("FamilyLines")) {
+            linesThroughAncestors(event, 16.0F, cache);
+        }
+    }
+
 }

@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,10 +19,7 @@ import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.joanzapata.iconify.fonts.FontAwesomeModule;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.Locale;
 
 import Model.Event;
 import Model.Person;
@@ -59,8 +55,8 @@ public class SearchActivity extends AppCompatActivity {
 
                 DataCache cache = DataCache.getInstance();
 
-                ArrayList<Event> events = cache.filterEvents(newText.toLowerCase(), cache.getFilteredEvents());
-                ArrayList<Person> people = cache.filterPeople(newText.toLowerCase(), cache.getFilteredPeople());
+                ArrayList<Event> events = cache.searchFilterEvents(newText.toLowerCase(), cache.getFilteredEvents());
+                ArrayList<Person> people = cache.searchFilterPeople(newText.toLowerCase(), cache.getFilteredPeople());
 
                 SearchAdaptor adaptor = new SearchAdaptor(events, people);
                 recyclerView.setAdapter(adaptor);

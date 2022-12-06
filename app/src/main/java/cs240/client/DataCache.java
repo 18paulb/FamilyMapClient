@@ -3,7 +3,6 @@ package cs240.client;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -186,7 +185,7 @@ public class DataCache {
         return ancestors;
     }
 
-    public ArrayList<Event> filterEvents (String s, ArrayList<Event> all) {
+    public ArrayList<Event> searchFilterEvents(String s, ArrayList<Event> all) {
         ArrayList<Event> events = new ArrayList<>();
         DataCache cache = DataCache.getInstance();
 
@@ -208,9 +207,8 @@ public class DataCache {
         return events;
     }
 
-    public ArrayList<Person> filterPeople (String s, ArrayList<Person> all) {
+    public ArrayList<Person> searchFilterPeople(String s, ArrayList<Person> all) {
         ArrayList<Person> people = new ArrayList<>();
-        DataCache cache = DataCache.getInstance();
 
         if (s.equals("")) {
             return people;
@@ -252,7 +250,7 @@ public class DataCache {
             }
         }
 
-        //Adds user and spouse
+        //Adds user and spouse TODO: Account for gender
         events.addAll(getEventsOfPerson(getUserID()));
         Person user = getPerson(getUserID());
 
@@ -260,7 +258,6 @@ public class DataCache {
             events.addAll(getEventsOfPerson(user.getSpouseID()));
         }
 
-        //TODO: Test
         //From the filtered maternal/paternal events, filters even further
         for (int i = 0; i < events.size(); ++i) {
             Person person = getPerson(events.get(i).getPersonID());
@@ -308,27 +305,6 @@ public class DataCache {
             people.add(spouse);
         }
 
-        for (int i = 0; i < people.size(); ++i) {
-            Person person = people.get(i);
-
-            if ((settings.get("MaleEvents") && person.getGender().equals("m")) || (settings.get("FemaleEvents") && person.getGender().equals("f"))) {
-                continue;
-            } else if (settings.get("MaleEvents") && !person.getGender().equals("m")) {
-                people.remove(i);
-                i--;
-            }
-            //If female filter is set, adds females
-            else if (settings.get("FemaleEvents") && !person.getGender().equals("f")) {
-                people.remove(i);
-                i--;
-            }
-        }
-
         return people;
     }
-
-    //Map<EventID, Event> events;
-    //Map<PersonID, List<Event>> personEvents;
-    //Set<PersonID> paternalAncestors;
-    //Set<PersonID> maternalAncestors;
 }
