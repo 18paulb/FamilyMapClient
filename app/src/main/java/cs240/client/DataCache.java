@@ -1,8 +1,11 @@
 package cs240.client;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import Model.Person;
 import Model.Event;
@@ -17,16 +20,17 @@ public class DataCache {
 
     private DataCache() {}
 
+    private Map<String, Boolean> settings = new HashMap<>();
+
     private ArrayList<Person> people;
     private ArrayList<Event> events;
     private ArrayList<String> authTokens = new ArrayList<>();
 
+    private String userID;
+
     public void addToken(String authToken) {
         authTokens.add(authToken);
     }
-
-    //String is the person ID
-    private Map<String, Person> mappedPerson;
 
     public ArrayList<Person> getPeople() {
         return people;
@@ -54,7 +58,7 @@ public class DataCache {
             }
         }
 
-        //Sort events - Bubble Sort
+        //Sort events by Year - Bubble Sort
         int size = events.size();
 
         for (int i = 0; i < size - 1; i++) {
@@ -138,7 +142,189 @@ public class DataCache {
         }
 
         return "No Relation";
+    }
 
+    public Map<String, Boolean> getSettings() {
+        return settings;
+    }
+
+    public void setSettings(String key, boolean val) {
+            this.settings.put(key, val);
+    }
+
+    public Set<String> getPaternalAncestors(String personID, Set<String> ancestors, boolean firstRun) {
+        Person person = getPerson(personID);
+
+        if (personID == null) {
+            return ancestors;
+        }
+
+        if (firstRun) {
+            getPaternalAncestors(person.getFatherID(), ancestors, false);
+        } else {
+            ancestors.add(person.getPersonID());
+            getPaternalAncestors(person.getFatherID(), ancestors, false);
+            getPaternalAncestors(person.getMotherID(), ancestors, false);
+        }
+        return ancestors;
+    }
+
+    public Set<String> getMaternalAncestors(String personID, Set<String> ancestors, boolean firstRun) {
+        Person person = getPerson(personID);
+
+        if (personID == null) {
+            return ancestors;
+        }
+
+        if (firstRun) {
+            getMaternalAncestors(person.getMotherID(), ancestors, false);
+        } else {
+            ancestors.add(person.getPersonID());
+            getMaternalAncestors(person.getFatherID(), ancestors, false);
+            getMaternalAncestors(person.getMotherID(), ancestors, false);
+        }
+        return ancestors;
+    }
+
+    public ArrayList<Event> filterEvents (String s, ArrayList<Event> all) {
+        ArrayList<Event> events = new ArrayList<>();
+        DataCache cache = DataCache.getInstance();
+
+        if (s.equals("")) {
+            return events;
+        }
+
+        for (Event event : all) {
+            String city = event.getCity().toLowerCase();
+            String country = event.getCountry().toLowerCase();
+            String year = Integer.toString(event.getYear()).toLowerCase();
+            String eventType = event.getEventType().toLowerCase();
+
+            if (city.contains(s) || country.contains(s) || year.contains(s) || eventType.contains(s)) {
+                events.add(event);
+            }
+        }
+
+        return events;
+    }
+
+    public ArrayList<Person> filterPeople (String s, ArrayList<Person> all) {
+        ArrayList<Person> people = new ArrayList<>();
+        DataCache cache = DataCache.getInstance();
+
+        if (s.equals("")) {
+            return people;
+        }
+
+        for (Person person : all) {
+            String firstName = person.getFirstName().toLowerCase();
+            String lastName = person.getLastName().toLowerCase();
+
+            if (firstName.contains(s) || lastName.contains(s)) {
+                people.add(person);
+            }
+        }
+        return people;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
+    public ArrayList<Event> getFilteredEvents() {
+        ArrayList<Event> events = new ArrayList<>();
+
+        if (settings.get("FatherLines")) {
+            Set<String> paternalAncestors = getPaternalAncestors(getUserID(), new HashSet<>(), true);
+            for (String id : paternalAncestors) {
+                events.addAll(getEventsOfPerson(id));
+            }
+        }
+
+        if (settings.get("MotherLines")) {
+            Set<String> maternalAncestors = getMaternalAncestors(getUserID(), new HashSet<>(), true);
+            for (String id : maternalAncestors) {
+                events.addAll(getEventsOfPerson(id));
+            }
+        }
+
+        //Adds user and spouse
+        events.addAll(getEventsOfPerson(getUserID()));
+        Person user = getPerson(getUserID());
+
+        if (user.getSpouseID() != null) {
+            events.addAll(getEventsOfPerson(user.getSpouseID()));
+        }
+
+        //TODO: Test
+        //From the filtered maternal/paternal events, filters even further
+        for (int i = 0; i < events.size(); ++i) {
+            Person person = getPerson(events.get(i).getPersonID());
+            //If male filter is set, adds males
+
+            if ((settings.get("MaleEvents") && person.getGender().equals("m")) || (settings.get("FemaleEvents") && person.getGender().equals("f"))) {
+                continue;
+            }
+            else if (settings.get("MaleEvents") && !person.getGender().equals("m")) {
+                events.remove(i);
+                i--;
+            }
+            //If female filter is set, adds females
+            else if (settings.get("FemaleEvents") && !person.getGender().equals("f")) {
+                events.remove(i);
+                i--;
+            }
+        }
+
+        return events;
+    }
+
+    public ArrayList<Person> getFilteredPeople() {
+        ArrayList<Person> people = new ArrayList<>();
+
+        if (settings.get("FatherLines")) {
+            Set<String> paternalAncestors = getPaternalAncestors(getUserID(), new HashSet<>(), true);
+            for (String id : paternalAncestors) {
+                people.add(getPerson(id));
+            }
+        }
+
+        if (settings.get("MotherLines")) {
+            Set<String> maternalAncestors = getMaternalAncestors(getUserID(), new HashSet<>(), true);
+            for (String id : maternalAncestors) {
+                people.add(getPerson(id));
+            }
+        }
+
+        //Adds user and spouse
+        people.add(getPerson(getUserID()));
+        Person user = getPerson(getUserID());
+        if (user.getSpouseID() != null) {
+            Person spouse = getPerson(user.getSpouseID());
+            people.add(spouse);
+        }
+
+        for (int i = 0; i < people.size(); ++i) {
+            Person person = people.get(i);
+
+            if ((settings.get("MaleEvents") && person.getGender().equals("m")) || (settings.get("FemaleEvents") && person.getGender().equals("f"))) {
+                continue;
+            } else if (settings.get("MaleEvents") && !person.getGender().equals("m")) {
+                people.remove(i);
+                i--;
+            }
+            //If female filter is set, adds females
+            else if (settings.get("FemaleEvents") && !person.getGender().equals("f")) {
+                people.remove(i);
+                i--;
+            }
+        }
+
+        return people;
     }
 
     //Map<EventID, Event> events;

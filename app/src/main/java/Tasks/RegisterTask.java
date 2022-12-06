@@ -37,7 +37,7 @@ public class RegisterTask implements Runnable {
 
         if (request.getUsername().equals("") || request.getPassword().equals("") || request.getFirstName().equals("")
             || request.getLastName().equals("")|| request.getEmail().equals("")) {
-            sendMessage("","",false);
+            sendMessage("","", "", false);
         }
         else {
 
@@ -46,7 +46,7 @@ public class RegisterTask implements Runnable {
                 result = ServerProxy.register(serverHost, serverPort, this.request);
 
                 if (!result.isSuccess()) {
-                    sendMessage("","",false);
+                    sendMessage("","", "", false);
                 }
                 else {
                     GetAllPersonResult persons = ServerProxy.getPersons(serverHost, serverPort, result.getAuthtoken());
@@ -55,7 +55,7 @@ public class RegisterTask implements Runnable {
                     GetAllEventResult events = ServerProxy.getEvents(serverHost, serverPort, result.getAuthtoken());
                     cache.setEvents(events.getData());
 
-                    sendMessage(request.getFirstName(), request.getLastName(), result.isSuccess());
+                    sendMessage(request.getFirstName(), request.getLastName(), request.getPersonID(), result.isSuccess());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -63,11 +63,12 @@ public class RegisterTask implements Runnable {
         }
     }
 
-    private void sendMessage(String first, String last, boolean success) {
+    private void sendMessage(String first, String last, String personID, boolean success) {
         Message message = Message.obtain();
         Bundle messageBundle = new Bundle();
         messageBundle.putString("firstName", first);
         messageBundle.putString("lastName", last);
+        messageBundle.putString("personID", personID);
         messageBundle.putBoolean("Success", success);
         message.setData(messageBundle);
         handler.sendMessage(message);

@@ -17,28 +17,6 @@ public class EventActivity extends AppCompatActivity {
         setContentView(R.layout.activity_event);
 
         Intent intent = getIntent();
-
-        if (intent != null) {
-
-        }
-/*
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        Fragment fragment = fragmentManager.findFragmentById(R.id.eventFrameLayout);
-
-        //If there is a previous activity state
-        if (savedInstanceState != null) {
-
-        }
-
-        if (fragment == null) {
-            //fragment = createMapFragment();
-
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.setReorderingAllowed(true);
-            transaction.add(R.id.eventFrameLayout, fragment);
-            transaction.commit();
-        }
-*/
     }
 
     @Override

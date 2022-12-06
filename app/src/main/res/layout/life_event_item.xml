@@ -4,20 +4,21 @@
     android:layout_height="wrap_content"
     android:layout_width="wrap_content"
     android:id="@+id/eventItem"
+    android:layout_margin="5dp"
     >
-<!--
-    <TextView
+
+    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="8dp"
-        android:text="Marker"
+        android:id="@+id/image"
         />
--->
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_marginStart="50dp"
         >
 
         <LinearLayout
@@ -43,6 +44,13 @@
             android:id="@+id/name"
             />
     </LinearLayout>
+
+    <!--
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/black" />
+        -->
 
 </RelativeLayout>
 

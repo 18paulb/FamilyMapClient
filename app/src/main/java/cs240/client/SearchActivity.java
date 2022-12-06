@@ -2,6 +2,7 @@ package cs240.client;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -11,17 +12,29 @@ import android.provider.ContactsContract;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.joanzapata.iconify.IconDrawable;
+import com.joanzapata.iconify.Iconify;
+import com.joanzapata.iconify.fonts.FontAwesomeIcons;
+import com.joanzapata.iconify.fonts.FontAwesomeModule;
+
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
+import java.util.Locale;
 
 import Model.Event;
 import Model.Person;
 
 public class SearchActivity extends AppCompatActivity {
 
-    private final int EVENT_ITEM_VIEW_TYPE = 0;
-    private final int PERSON_ITEM_VIEW_TYPE = 1;
+    private final int PERSON_ITEM_VIEW_TYPE = 0;
+    private final int EVENT_ITEM_VIEW_TYPE = 1;
+
+
+    SearchView search;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,13 +44,36 @@ public class SearchActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(SearchActivity.this));
 
-        DataCache cache = DataCache.getInstance();
-        ArrayList<Event> events = cache.getEvents();
-        ArrayList<Person> people = cache.getPeople();
+        search = findViewById(R.id.searchBar);
 
-        SearchAdaptor adaptor = new SearchAdaptor(events, people);
-        recyclerView.setAdapter(adaptor);
+        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                System.out.println(newText);
+
+                DataCache cache = DataCache.getInstance();
+
+                ArrayList<Event> events = cache.filterEvents(newText.toLowerCase(), cache.getFilteredEvents());
+                ArrayList<Person> people = cache.filterPeople(newText.toLowerCase(), cache.getFilteredPeople());
+
+                SearchAdaptor adaptor = new SearchAdaptor(events, people);
+                recyclerView.setAdapter(adaptor);
+
+                return false;
+            }
+        });
+        Iconify.with(new FontAwesomeModule());
     }
+
+
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -60,16 +96,21 @@ public class SearchActivity extends AppCompatActivity {
             this.people = people;
         }
 
+        @Override
+        public int getItemViewType(int position) {
+            return position < people.size() ? PERSON_ITEM_VIEW_TYPE : EVENT_ITEM_VIEW_TYPE;
+        }
+
         @NonNull
         @Override
         public SearchViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = null;
 
-            if (viewType == EVENT_ITEM_VIEW_TYPE) {
-                view = getLayoutInflater().inflate(R.layout.life_event_item, parent, false);
-            }
             if (viewType == PERSON_ITEM_VIEW_TYPE) {
                 view = getLayoutInflater().inflate(R.layout.family_item, parent, false);
+            }
+            else {
+                view = getLayoutInflater().inflate(R.layout.life_event_item, parent, false);
             }
 
             return new SearchViewHolder(view, viewType);
@@ -77,11 +118,10 @@ public class SearchActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull SearchViewHolder holder, int position) {
-            if (position < events.size()) {
-                holder.bind(events.get(position));
+            if (position < people.size()) {
+                holder.bind(people.get(position));
             } else {
-                //FIXME: I do not understand this
-                holder.bind(people.get(position - events.size()));
+                holder.bind(events.get(position - people.size()));
             }
 
         }
@@ -98,6 +138,7 @@ public class SearchActivity extends AppCompatActivity {
         private TextView name;
         private TextView location;
         private TextView eventType;
+        private TextView year;
         private TextView relationship;
 
         private int viewType;
@@ -113,14 +154,14 @@ public class SearchActivity extends AppCompatActivity {
 
             itemView.setOnClickListener(this);
 
-            if (viewType == EVENT_ITEM_VIEW_TYPE) {
-                name = itemView.findViewById(R.id.name);
-                location = itemView.findViewById(R.id.location);
-                eventType = itemView.findViewById(R.id.eventType);
-            }
             if (viewType == PERSON_ITEM_VIEW_TYPE) {
                 name = itemView.findViewById(R.id.name);
                 relationship = itemView.findViewById(R.id.relationship);
+            }
+            else {
+                name = itemView.findViewById(R.id.name);
+                location = itemView.findViewById(R.id.location);
+                eventType = itemView.findViewById(R.id.eventType);
             }
         }
 
@@ -129,23 +170,70 @@ public class SearchActivity extends AppCompatActivity {
 
             Person person = cache.getPerson(event.getPersonID());
             name.setText(String.format("%s %s", person.getFirstName(), person.getLastName()));
-            location.setText(String.format("%s %s", event.getCity(), event.getCountry()));
+            location.setText(String.format("%s %s (%s)", event.getCity(), event.getCountry(), Integer.toString(event.getYear())));
             eventType.setText(String.format("%s: ", event.getEventType()));
+
+            ImageView image = itemView.findViewById(R.id.image);
+
+            image.setImageDrawable(new IconDrawable(getApplicationContext(), FontAwesomeIcons.fa_map_marker)
+                    .colorRes(R.color.black)
+                    .sizeDp(40)
+            );
         }
 
         private void bind(Person person) {
             this.person = person;
             name.setText(String.format("%s %s", person.getFirstName(), person.getLastName()));
+
+            ImageView image = itemView.findViewById(R.id.image);
+
+            if (person.getGender().equals("m")) {
+                image.setImageDrawable(new IconDrawable(getApplicationContext(), FontAwesomeIcons.fa_male)
+                        .colorRes(R.color.teal_200)
+                        .sizeDp(40)
+                );
+            }
+            else {
+                image.setImageDrawable(new IconDrawable(getApplicationContext(), FontAwesomeIcons.fa_female)
+                        .colorRes(R.color.purple_200)
+                        .sizeDp(40)
+                );
+            }
+
         }
 
+        //FIXME: NOT Working when clicking person activity
         @Override
         public void onClick(View v) {
-            if (viewType == EVENT_ITEM_VIEW_TYPE) {
-                System.out.println("Event clicked");
-            }
+
             if (viewType == PERSON_ITEM_VIEW_TYPE) {
                 System.out.println("Person clicked");
+                Intent intent = new Intent(SearchActivity.this, PersonActivity.class);
+
+                intent.putExtra("personID", person.getPersonID());
+                intent.putExtra("firstName", person.getFirstName());
+                intent.putExtra("lastName", person.getLastName());
+
+                if (person.getGender().equals("f")) {
+                    intent.putExtra("gender", "Female");
+                }
+                if (person.getGender().equals("m")) {
+                    intent.putExtra("gender", "Male");
+                }
+
+                startActivity(intent);
+
             }
+            else {
+                System.out.println("Event clicked");
+                Intent intent = new Intent(SearchActivity.this, EventActivity.class);
+
+                intent.putExtra("eventID", event.getEventID());
+                intent.putExtra("associatedPersonID", event.getPersonID());
+
+                startActivity(intent);
+            }
+
         }
     }
 }

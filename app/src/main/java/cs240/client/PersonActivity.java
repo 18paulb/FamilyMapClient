@@ -9,9 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.joanzapata.iconify.IconDrawable;
+import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 
 import org.w3c.dom.Text;
 
@@ -192,6 +196,14 @@ public class PersonActivity extends AppCompatActivity {
             TextView name = eventView.findViewById(R.id.name);
             name.setText(String.format("%s %s", firstName.getText(), lastName.getText()));
 
+            ImageView image = eventView.findViewById(R.id.image);
+
+            image.setImageDrawable(new IconDrawable(getApplicationContext(), FontAwesomeIcons.fa_map_marker)
+                    .colorRes(R.color.black)
+                    .sizeDp(40)
+            );
+
+
             eventView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -200,18 +212,6 @@ public class PersonActivity extends AppCompatActivity {
 
                     intent.putExtra("eventID", event.getEventID());
                     intent.putExtra("associatedPersonID", event.getPersonID());
-
-                    /*
-                    intent.putExtra("lat", event.getLatitude());
-                    intent.putExtra("lon", event.getLongitude());
-
-                    intent.putExtra("eventType", event.getEventType());
-                    intent.putExtra("city", event.getCity());
-                    intent.putExtra("country", event.getCountry());
-
-                    intent.putExtra("year", event.getYear());
-
-                     */
 
                     startActivity(intent);
 
@@ -230,6 +230,21 @@ public class PersonActivity extends AppCompatActivity {
             DataCache cache = DataCache.getInstance();
             String personID = getIntent().getStringExtra("personID");
             relation.setText(cache.getRelationToPerson(personID, people.get(personPosition).getPersonID()));
+
+            ImageView image = personView.findViewById(R.id.image);
+
+            if (person.getGender().equals("m")) {
+                image.setImageDrawable(new IconDrawable(getApplicationContext(), FontAwesomeIcons.fa_male)
+                        .colorRes(R.color.teal_200)
+                        .sizeDp(40)
+                );
+            }
+            else {
+                image.setImageDrawable(new IconDrawable(getApplicationContext(), FontAwesomeIcons.fa_female)
+                        .colorRes(R.color.purple_200)
+                        .sizeDp(40)
+                );
+            }
 
             personView.setOnClickListener(new View.OnClickListener() {
                 @Override

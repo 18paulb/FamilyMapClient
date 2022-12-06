@@ -42,7 +42,7 @@ public class LoginTask implements Runnable{
                 result = ServerProxy.login(serverHost, serverPort, this.request);
 
                 if (!result.isSuccess()) {
-                    sendMessage("","", result.isSuccess());
+                    sendMessage("","", "", result.isSuccess());
                 }
 
                 else {
@@ -55,14 +55,17 @@ public class LoginTask implements Runnable{
 
                     String fname = "";
                     String lname = "";
+                    String personID = "";
                     for (Person person : persons.getData()) {
                         if (person.getPersonID().equals(result.getPersonID())) {
                             fname = person.getFirstName();
                             lname = person.getLastName();
+                            personID = person.getPersonID();
+
                         }
                     }
 
-                    sendMessage(fname, lname, result.isSuccess());
+                    sendMessage(fname, lname, personID, result.isSuccess());
                 }
 
             } catch (Exception e) {
@@ -71,11 +74,12 @@ public class LoginTask implements Runnable{
         //}
     }
 
-    private void sendMessage(String firstName, String lastName, boolean success) {
+    private void sendMessage(String firstName, String lastName, String personID, boolean success) {
         Message message = Message.obtain();
         Bundle messageBundle = new Bundle();
         messageBundle.putString("firstName", firstName);
         messageBundle.putString("lastName", lastName);
+        messageBundle.putString("personID", personID);
         messageBundle.putBoolean("Success", success);
         message.setData(messageBundle);
         handler.sendMessage(message);

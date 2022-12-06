@@ -99,11 +99,17 @@ public class LoginFragment extends Fragment  {
 
         serverHost.setText("10.0.2.2");
         serverPort.setText("8080");
+        username.setText("sheila");
+        password.setText("parker");
 
         male = view.findViewById(R.id.maleOption);
         female = view.findViewById(R.id.femaleOption);
 
         Button registerButton = view.findViewById(R.id.registerButton);
+
+        if (!username.getText().equals("") && !password.getText().equals("")) {
+            loginButton.setEnabled(true);
+        }
 
 
         //Text Watchers
@@ -252,6 +258,19 @@ public class LoginFragment extends Fragment  {
 
                             if (success) {
                                 Toast.makeText(getContext(), "Registering: " + fname + " " + lname, Toast.LENGTH_SHORT).show();
+
+                                //Initializes Settings
+                                DataCache cache = DataCache.getInstance();
+                                cache.setSettings("LifeStory", true);
+                                cache.setSettings("FamilyLines", true);
+                                cache.setSettings("SpouseLines", true);
+                                cache.setSettings("FatherLines", true);
+                                cache.setSettings("MotherLines", true);
+                                cache.setSettings("MaleEvents", true);
+                                cache.setSettings("FemaleEvents", true);
+
+                                cache.setUserID(bundle.getString("personID"));
+
                             }
                             else {
                                 Toast.makeText(getContext(), "Failed to Register", Toast.LENGTH_LONG).show();
@@ -319,6 +338,18 @@ public class LoginFragment extends Fragment  {
                             if (success) {
                                 Toast.makeText(getContext(), "Logging In: " + fname + " " + lname, Toast.LENGTH_SHORT).show();
                                 listener.notifyLogin();
+
+                                //Initializes Settings
+                                DataCache cache = DataCache.getInstance();
+                                cache.setSettings("LifeStory", true);
+                                cache.setSettings("FamilyLines", true);
+                                cache.setSettings("SpouseLines", true);
+                                cache.setSettings("FatherLines", true);
+                                cache.setSettings("MotherLines", true);
+                                cache.setSettings("MaleEvents", true);
+                                cache.setSettings("FemaleEvents", true);
+
+                                cache.setUserID(bundle.getString("personID"));
                             } else {
                                 Toast.makeText(getContext(), "Failed to Login", Toast.LENGTH_LONG).show();
                             }

@@ -294,16 +294,6 @@ public class ServerProxy {
         return sb.toString();
     }
 
-    //login
-    //LoginResult login(LoginRequest request) {}
-
-    //register
-    //RegisterResult register(RegisterRequest request) {}
-
-    //getPeople
-
-    //getEvents
-
     //clear
     //fill
     //load

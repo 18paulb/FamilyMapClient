@@ -1,6 +1,7 @@
 package cs240.client;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -8,13 +9,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,16 +25,21 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.joanzapata.iconify.fonts.FontAwesomeModule;
 
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import Model.Event;
 import Model.Person;
-import ViewModels.MainActivityViewModel;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMarkerClickListener{
 
@@ -45,10 +51,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private TextView eventLoc;
     private TextView eventYear;
     private RelativeLayout info;
+    private ImageView image;
 
     private Intent intent = null;
 
     private Bundle data = new Bundle();
+
+    private ArrayList<Polyline> lines = new ArrayList<>();
+    private ArrayList<Marker> markers = new ArrayList<>();
+
+    private Map<String, Float> colors = new HashMap<>();
 
     @Nullable
     @Override
@@ -68,7 +80,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         eventLoc = view.findViewById(R.id.eventLocation);
         eventYear = view.findViewById(R.id.eventYear);
         info = view.findViewById(R.id.info);
-
+        image = view.findViewById(R.id.image);
 
         info.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,20 +133,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     @Override
     public boolean onOptionsItemSelected(MenuItem menu) {
+        Intent intent;
         switch(menu.getItemId()) {
             case R.id.settings:
                 System.out.println("Settings Clicked");
+                intent = new Intent(getActivity(), SettingsActivity.class);
+                startActivity(intent);
                 return true;
             case R.id.search:
                 System.out.println("Search Clicked");
+                intent = new Intent(getActivity(), SearchActivity.class);
+                startActivity(intent);
                 return true;
             default: return super.onOptionsItemSelected(menu);
         }
     }
-
-
-
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -145,35 +158,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         DataCache cache = DataCache.getInstance();
 
-        for (Event event : cache.getEvents()) {
-            LatLng tmp = new LatLng(event.getLatitude(), event.getLongitude());
-
-            if (event.getEventType().equals("Birth")) {
-                Marker marker = googleMap.addMarker(new MarkerOptions()
-                        .position(tmp)
-                        .title("Marker in " + event.getCity())
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                );
-                marker.setTag(event);
-            }
-
-            if (event.getEventType().equals("Marriage")) {
-                Marker marker = googleMap.addMarker(new MarkerOptions()
-                        .position(tmp)
-                        .title("Marker in " + event.getCity())
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE))
-                );
-                marker.setTag(event);
-            }
-
-            if (event.getEventType().equals("Death")) {
-                Marker marker = googleMap.addMarker(new MarkerOptions()
-                        .position(tmp)
-                        .title("Marker in " + event.getCity())
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                );
-                marker.setTag(event);
-            }
+        for (Event event : cache.getFilteredEvents()) {
+            addMarker(map, event);
         }
 
         if (requireActivity().getClass().equals(EventActivity.class)) {
@@ -190,12 +176,60 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
             eventType.setText(String.format("%s: ", event.getEventType().toUpperCase()));;
             eventLoc.setText(String.format("%s %s", event.getCity(), event.getCountry()));
             eventYear.setText(String.valueOf(event.getYear()));
+
+            if (person.getGender().equals("m")) {
+                image.setImageDrawable(new IconDrawable(getActivity(), FontAwesomeIcons.fa_male)
+                        .colorRes(R.color.teal_200)
+                        .sizeDp(40)
+                );
+            }
+            else {
+                image.setImageDrawable(new IconDrawable(getActivity(), FontAwesomeIcons.fa_female)
+                        .colorRes(R.color.purple_200)
+                        .sizeDp(40)
+                );
+            }
+        }
+    }
+
+    //TODO: Implement maternal, paternal
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        System.out.println("Map is reloaded");
+        //Filters Gender
+        DataCache cache = DataCache.getInstance();
+
+        //Removes all markers from map but not from markers array
+        for (Marker marker : markers) {
+            marker.remove();
         }
 
+        if (map != null) {
 
-        //map.addPolyline()
+            ArrayList<Event> events = new ArrayList<>();
 
-        //googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+            //Add events of user and user's spouse
+            events.addAll(cache.getEventsOfPerson(cache.getUserID()));
+
+            Person user = cache.getPerson(cache.getUserID());
+
+            if (user.getSpouseID() != null) {
+                events.addAll(cache.getEventsOfPerson(user.getSpouseID()));
+            }
+
+            events.addAll(cache.getFilteredEvents());
+
+            for (Event event : events) {
+                addMarker(map, event);
+            }
+        }
+
+        //Removes Polylines on load
+        for (Polyline line : lines) {
+            line.remove();
+        }
     }
 
     @Override
@@ -203,8 +237,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
     }
 
+    //FIXME: Look into COMPLETED ASTEROIDS
     @Override
     public boolean onMarkerClick(Marker marker) {
+
+        //This populates the info section
 
         Event event = (Event) marker.getTag();
 
@@ -235,6 +272,50 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         eventLoc.setText(String.format("%s %s", event.getCity(), event.getCountry()));
         eventYear.setText(String.valueOf(event.getYear()));
 
+        if (person.getGender().equals("m")) {
+            image.setImageDrawable(new IconDrawable(getActivity(), FontAwesomeIcons.fa_male)
+                    .colorRes(R.color.teal_200)
+                    .sizeDp(40)
+            );
+        }
+        else {
+            image.setImageDrawable(new IconDrawable(getActivity(), FontAwesomeIcons.fa_female)
+                    .colorRes(R.color.purple_200)
+                    .sizeDp(40)
+            );
+        }
+
+        for (Polyline line : lines) {
+            line.remove();
+        }
+
+        //Draws Lines
+
+        //Draw Spouse Line - GOOD
+        if (person.getSpouseID() != null && cache.getSettings().get("SpouseLines")) {
+            ArrayList<Event> spouseEvents = cache.getEventsOfPerson(person.getSpouseID());
+            drawLine(event, spouseEvents.get(0), Color.RED, 16.0F);
+        }
+
+        //Draws lines between all life events
+        if (cache.getSettings().get("LifeStory")) {
+            ArrayList<Event> lifeEvents = cache.getEventsOfPerson(person.getPersonID());
+            Event currEvent = event;
+            for (Event tmp : lifeEvents) {
+                if (tmp.getEventID().equals(event.getEventID())) {
+                    currEvent = tmp;
+                    continue;
+                }
+                drawLine(currEvent, tmp, Color.BLUE, 16.0F);
+                currEvent = tmp;
+            }
+        }
+
+        //Draw Lines to All the Ancestors with lines getting progressively smaller after each generation
+        if (cache.getSettings().get("FamilyLines")) {
+            goThroughAncestors(event, 16.0F, cache);
+        }
+
         return false;
     }
 
@@ -242,25 +323,68 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         return data;
     }
 
+    public void goThroughAncestors(Event startEvent, float width, DataCache cache) {
+        Person person = cache.getPerson(startEvent.getPersonID());
+
+        if (person.getMotherID() != null) {
+            Person mother = cache.getPerson(person.getMotherID());
+
+            ArrayList<Event> motherEvents = cache.getEventsOfPerson(mother.getPersonID());
+            drawLine(startEvent, motherEvents.get(0), Color.GRAY, width);
+
+            goThroughAncestors(motherEvents.get(0), width-4, cache);
+
+        }
+        if (person.getFatherID() != null) {
+            Person father = cache.getPerson(person.getFatherID());
+
+            ArrayList<Event> fatherEvents = cache.getEventsOfPerson(father.getPersonID());
+            drawLine(startEvent, fatherEvents.get(0), Color.GRAY, width);
+
+            goThroughAncestors(fatherEvents.get(0), width-4, cache);
+        }
+
+    }
 
     //Later for line drawing
-    /*
-     void drawAndRemoveLine(Event start, Event stop, float hue, float width) {
-        LatLng start
-        LatLng end
+     public void drawLine(Event start, Event stop, int hue, float width) {
+        LatLng startPoint = new LatLng(start.getLatitude(), start.getLongitude());
+        LatLng endPoint = new LatLng(stop.getLatitude(), stop.getLongitude());
 
-        PolylineOptions options = new PolyLineOptions()
+        PolylineOptions options = new PolylineOptions()
             .add(startPoint)
             .add(endPoint)
             .color(hue)
-            .width(width)
+            .width(width);
 
-        Polyline line = map.addPolyLine(options)
-
-        or
-
-        line.remove()
+        Polyline line = map.addPolyline(options);
+        lines.add(line);
      }
-     */
 
+    public void addMarker(GoogleMap map, Event event) {
+        LatLng tmp = new LatLng(event.getLatitude(), event.getLongitude());
+
+        String eventType = event.getEventType().toLowerCase();
+
+        float random = (float) (0 + Math.random() * (360));
+
+        if (colors.containsKey(eventType)) {
+            Marker marker = map.addMarker(new MarkerOptions()
+                    .position(tmp)
+                    .title("Marker in " + event.getCity())
+                    .icon(BitmapDescriptorFactory.defaultMarker(colors.get(eventType)))
+            );
+            marker.setTag(event);
+            markers.add(marker);
+        } else {
+            colors.put(eventType, random);
+            Marker marker = map.addMarker(new MarkerOptions()
+                    .position(tmp)
+                    .title("Marker in " + event.getCity())
+                    .icon(BitmapDescriptorFactory.defaultMarker(colors.get(eventType)))
+            );
+            marker.setTag(event);
+            markers.add(marker);
+        }
+    }
 }
