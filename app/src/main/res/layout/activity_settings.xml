@@ -15,7 +15,7 @@
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Life Story Lines (Show Life Story Lines)"
+            android:text="@string/lifeStory"
             />
         <Switch
             android:id="@+id/lifeStoryLines"
@@ -34,7 +34,7 @@
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Family Tree Lines (Show Family Tree Lines"
+            android:text="@string/familyLines"
             />
         <Switch
             android:id="@+id/familyLines"
@@ -52,7 +52,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Spouse Lines (Show Spouse Lines)"
+            android:text="@string/spouseLines"
             />
         <Switch
             android:id="@+id/spouseLines"
@@ -71,7 +71,7 @@
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Father's Side (Filter By Father's Side of Family)"
+            android:text="@string/fatherSide"
             />
         <Switch
             android:id="@+id/fatherSide"
@@ -90,7 +90,7 @@
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mother's Side (Filter By Mother's Side of Family)"
+            android:text="@string/motherSide"
             />
         <Switch
             android:id="@+id/motherSide"
@@ -109,7 +109,7 @@
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Male Events (Filter Events Based On Gender)"
+            android:text="@string/maleEvents"
             />
         <Switch
             android:id="@+id/maleEvents"
@@ -128,7 +128,7 @@
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Female Events (Filter Events Based On Gender)"
+            android:text="@string/femaleEvents"
             />
         <Switch
             android:id="@+id/femaleEvents"
@@ -142,7 +142,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Log Out"
+        android:text="@string/logout"
         android:id="@+id/logout"
         />
 

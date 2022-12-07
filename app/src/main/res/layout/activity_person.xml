@@ -71,17 +71,5 @@
         tools:context=".view.PersonActivity"
         >
 
-        <!--Layout for group headings-->
-        <!--
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/title"
-            />
-           -->
-
-        <!--Layout for headings to be displayed-->
-
-
     </ExpandableListView>
 </LinearLayout>

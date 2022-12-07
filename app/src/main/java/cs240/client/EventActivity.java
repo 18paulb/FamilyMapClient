@@ -29,6 +29,4 @@ public class EventActivity extends AppCompatActivity {
 
         return true;
     }
-
-
 }

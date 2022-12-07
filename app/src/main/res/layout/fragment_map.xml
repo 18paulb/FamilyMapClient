@@ -45,7 +45,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/firstName"
-                    android:text="Click on Marker to see event details"
+                    android:text="@string/defaultInfo"
                     android:textAlignment="center"
                     android:layout_margin="5dp"
                     />

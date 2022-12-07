@@ -12,6 +12,7 @@ import java.net.URL;
 
 import Request.LoginRequest;
 import Request.RegisterRequest;
+import Result.ClearResult;
 import Result.GetAllEventResult;
 import Result.GetAllPersonResult;
 import Result.LoginResult;
@@ -275,7 +276,52 @@ public class ServerProxy {
         }
     }
 
+    public static ClearResult clear(String serverHost, String serverPort) {
+        ClearResult result = new ClearResult();
 
+        try {
+
+            URL url = new URL("http://" + serverHost + ":" + serverPort + "/clear");
+
+            HttpURLConnection http = (HttpURLConnection)url.openConnection();
+
+            http.setRequestMethod("POST");
+
+            http.setDoOutput(false);
+
+            http.addRequestProperty("Accept", "application/json");
+
+            http.connect();
+
+            if (http.getResponseCode() == HttpURLConnection.HTTP_OK) {
+
+                InputStream respBody = http.getInputStream();
+
+                String respData = readString(respBody);
+
+                System.out.println(respData);
+                result = gson.fromJson(respData, ClearResult.class);
+            }
+            else {
+
+                System.out.println("ERROR: " + http.getResponseMessage());
+
+                InputStream respBody = http.getErrorStream();
+
+                String respData = readString(respBody);
+
+                System.out.println(respData);
+                result = gson.fromJson(respData, ClearResult.class);
+            }
+
+            return result;
+        }
+        catch (IOException e) {
+            // An exception was thrown, so display the exception's stack trace
+            e.printStackTrace();
+            return result;
+        }
+    }
 
     private static void writeString(String str, OutputStream os) throws IOException {
         OutputStreamWriter sw = new OutputStreamWriter(os);
@@ -293,8 +339,4 @@ public class ServerProxy {
         }
         return sb.toString();
     }
-
-    //clear
-    //fill
-    //load
 }
